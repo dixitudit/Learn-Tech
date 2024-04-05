@@ -10,9 +10,9 @@ const Header = () => {
     <Navbar className="border-b-2">
       <Link
         to={"/"}
-        className="self-center whitespace-nowrap text-sm font-semibold dark:text-white"
+        className="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
       >
-        <span className="px-2 py-1 rounded-lg grad">Learn</span>
+        <span className="px-2 py-1 text-xl rounded-lg grad">Learn</span>
         Tech
       </Link>
       <form>
@@ -31,7 +31,7 @@ const Header = () => {
           <FaMoon />
         </Button>
         <Link to={"/sign-in"}>
-          <Button gradientDuoTone={"purpleToBlue"}>Sign In</Button>
+          <Button gradientDuoTone={"purpleToBlue"} outline>Sign In</Button>
         </Link>
         <Navbar.Toggle />
       </div>
