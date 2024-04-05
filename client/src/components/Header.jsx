@@ -1,4 +1,3 @@
-// import React from 'react';
 import { Button, Navbar, TextInput } from "flowbite-react";
 import "./Header.css";
 import { Link, useLocation } from "react-router-dom";
