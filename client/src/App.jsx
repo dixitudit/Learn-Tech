@@ -1,3 +1,5 @@
+// 2:21:16
+
 import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
@@ -6,6 +8,7 @@ import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
 import Header from './components/Header';
+import FooterComponent from './components/Footer';
 function App() {
   return (
     <>
@@ -18,6 +21,7 @@ function App() {
         <Route path='/projects' element={<Projects/>}></Route>
         <Route path='/sign-in' element={<SignIn/>}></Route>
       </Routes>
+      <FooterComponent/>
     </>
   );
 }
