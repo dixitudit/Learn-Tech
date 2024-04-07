@@ -1,5 +1,5 @@
 // import React from 'react'
-import { Footer, FooterCopyright, FooterDivider } from "flowbite-react";
+import { Footer } from "flowbite-react";
 import { Link } from "react-router-dom";
 const FooterComponent = () => {
   return (
