@@ -13,7 +13,7 @@ export const signup = async (req, res, next) => {
     email === "" ||
     password === ""
   ) {
-    next(errorHandler(400, "All fields are required"));
+    return next(errorHandler(400, "All fields are required"));
   }
 
   const hashedPass = bcryptjs.hashSync(password, 10);
@@ -25,7 +25,7 @@ export const signup = async (req, res, next) => {
   });
   try {
     await newUser.save();
-    res.json({ message: "signup successful" });
+    res.json({ success: true, message: "signup successful" });
   } catch (err) {
     next(err);
   }
@@ -34,7 +34,7 @@ export const signup = async (req, res, next) => {
 export const signin = async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || email === "" || !password || password === "") {
-    next(errorHandler(400, "Username or Password is missing"));
+    return next(errorHandler(400, "Username or Password is missing"));
   }
   try {
     const validUser = await User.findOne({ email });
@@ -42,10 +42,7 @@ export const signin = async (req, res, next) => {
     if (!validUser) {
       return next(errorHandler(400, "Wrong Credentials"));
     }
-    const isValidPassword = bcryptjs.compareSync(
-      password,
-      validUser.password
-    );
+    const isValidPassword = bcryptjs.compareSync(password, validUser.password);
     if (!isValidPassword) {
       return next(errorHandler(400, "Wrong Credentials"));
     }
@@ -53,11 +50,14 @@ export const signin = async (req, res, next) => {
       {
         id: validUser._id,
       },
-      process.env.JWT_SE 
+      process.env.JWT_SE
     );
     // console.log(JSON.stringify(validUser));
-    const {password:pass, ...rest} = validUser._doc;
-    res.status(200).cookie('access_token', token,  { httpOnly: true }).json(rest); 
+    const { password: pass, ...rest } = validUser._doc;
+    res
+      .status(200)
+      .cookie("access_token", token, { httpOnly: true })
+      .json({...rest,  success: true });
   } catch (err) {
     next(err);
   }

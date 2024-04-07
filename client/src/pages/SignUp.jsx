@@ -27,6 +27,7 @@ const SignUp = () => {
         setErrorMsg(data.message);
       }
       else{
+        console.log('go/sign-in')
         navigate('/sign-in')
       }
     } catch (err) {
@@ -74,7 +75,7 @@ const SignUp = () => {
                 <Label value="Your Password" />
                 <TextInput
                   type="password"
-                  placeholder="Password"
+                  placeholder="********"
                   id="password"
                   onChange={handleChange}
                 />
