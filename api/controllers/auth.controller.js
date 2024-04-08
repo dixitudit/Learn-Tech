@@ -57,8 +57,55 @@ export const signin = async (req, res, next) => {
     res
       .status(200)
       .cookie("access_token", token, { httpOnly: true })
-      .json({user: rest,  success: true });
+      .json({ user: rest, success: true });
   } catch (err) {
     next(err);
+  }
+};
+
+export const google = async (req, res, next) => {
+  const { name, email, googlePhotoURL } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      // if the user already exists, just sign in
+      const token = jwt.sign(
+        {
+          id: user._id,
+        },
+        process.env.JWT_SE
+      );
+      const { password: pass, ...rest } = user._doc;
+      return res
+        .status(200)
+        .cookie("access_token", token, { httpOnly: true })
+        .json({ user: rest, success: true });
+    } else {
+      // if the user doesn't exist, create a new user with random password and random username
+      const generatedPassword = Math.random().toString(36).slice(-8);
+      const hashedPass = bcryptjs.hashSync(generatedPassword, 10);
+
+      const newUser = new User({
+        username: name.toLowerCase().split(' ').join('') +
+          Math.random().toString(9).slice(-4),
+        email,
+        password: hashedPass,
+        profilePic: googlePhotoURL,
+      });
+      await newUser.save();
+      const token = jwt.sign(
+        {
+          id: newUser._id,
+        },
+        process.env.JWT_SE
+      );
+      const { password: pass, ...rest } = newUser._doc;
+      return res
+        .status(200)
+        .cookie("access_token", token, { httpOnly: true })
+        .json({ user: rest, success: true });
+    }
+  } catch (err) {
+    return next(err);
   }
 };
