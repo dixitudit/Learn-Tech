@@ -79,14 +79,14 @@ export const google = async (req, res, next) => {
       return res
         .status(200)
         .cookie("access_token", token, { httpOnly: true })
-        .json({ user: rest, success: true });
+        .json(rest);
     } else {
       // if the user doesn't exist, create a new user with random password and random username
       const generatedPassword = Math.random().toString(36).slice(-8);
       const hashedPass = bcryptjs.hashSync(generatedPassword, 10);
 
       const newUser = new User({
-        username: name.toLowerCase().split(' ').join('') +
+        username: name.toLowerCase().replace(' ','') +
           Math.random().toString(9).slice(-4),
         email,
         password: hashedPass,
@@ -103,7 +103,7 @@ export const google = async (req, res, next) => {
       return res
         .status(200)
         .cookie("access_token", token, { httpOnly: true })
-        .json({ user: rest, success: true });
+        .json(rest);
     }
   } catch (err) {
     return next(err);
