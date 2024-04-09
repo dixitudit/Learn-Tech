@@ -9,9 +9,11 @@ const Dashboard = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const tabFromUrl = urlParams.get("tab");
-    console.log(tabFromUrl);
+    // console.log(tabFromUrl);
     setTab(tabFromUrl);
   }, [location.search]);
+
+
   return (
     <div className="sm:flex w-full min-h-screen sm:flex-row max-sm:items-center">
       <div className="sm:w-56">
