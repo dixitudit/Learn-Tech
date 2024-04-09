@@ -12,6 +12,9 @@ export const verifyToken = (req, res, next) => {
       return next(errorHandler(401, "Access denied"));
     }
     req.user = user;
+    if (req.user.id !== req.params.userId) {
+      return next(errorHandler(403, "Access Denied"));
+    }
     next();
   });
 };
