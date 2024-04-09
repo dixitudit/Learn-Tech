@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Alert, Button, Modal, TextInput } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import {
+  signOut,
   deleteFailure,
   deleteStart,
   deleteSuccess,
@@ -38,6 +39,21 @@ export default function DashProfile() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImageFile(file);
+  };
+  const handleSignOut = async () => {
+    try {
+      const res = await fetch("/api/user/signout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        dispatch(signOut());
+      } else {
+        console.log(data.message);
+      }
+    } catch (err) {
+      console.log(err.message);
+    }
   };
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -121,22 +137,17 @@ export default function DashProfile() {
   const handleDeleteUser = async () => {
     setShowModal(false);
     dispatch(deleteStart());
-    try{
+    try {
       const res = await fetch(`/api/user/delete/${currentUser._id}`, {
         method: "DELETE",
       });
       const data = await res.json();
-      if(!res.ok){
+      if (!res.ok) {
         dispatch(deleteFailure(data.message));
-      }
-      else {
+      } else {
         dispatch(deleteSuccess());
       }
-    }
-    catch(err){
-
-    }
-
+    } catch (err) {}
   };
 
   return (
@@ -229,7 +240,12 @@ export default function DashProfile() {
         >
           Delete Account
         </div>
-        <div className="text-sm p-2 text-gray-500 cursor-pointer">Sign out</div>
+        <div
+          onClick={handleSignOut}
+          className="text-sm p-2 text-gray-500 cursor-pointer"
+        >
+          Sign out
+        </div>
       </div>
       {updateUserSuccess && <Alert color="success">{updateUserSuccess}</Alert>}
       {updateUserError && <Alert color="failure">{updateUserError}</Alert>}
