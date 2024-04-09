@@ -1,6 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Alert, Button, TextInput } from "flowbite-react";
+import {
+  updateFailure,
+  updateStart,
+  updateSuccess,
+} from "../redux/user/userSlice";
 import {
   getDownloadURL,
   getStorage,
@@ -10,22 +15,69 @@ import {
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { app } from "../firebase";
+import { set } from "mongoose";
 
 export default function DashProfile() {
+  const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const filePickerRef = useRef();
+  const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
   const [imageFileUploadError, setImageFileUploadError] = useState(null);
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(0);
   const [imageFileUrl, setImageFileUrl] = useState(currentUser?.profilePic);
+  const [updateUserError, setUpdateUserError] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [imageFileUploading, setImageFileUploading] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImageFile(file);
   };
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUpdateUserSuccess(null);
+    setUpdateUserError(null);
+    if (imageFileUploading) {
+      setUpdateUserError(
+        "Please wait for the image to upload before submitting the form"
+      );
+      return;
+    }
+    dispatch(updateStart());
+    if (Object.keys(formData).length === 0) {
+      setUpdateUserError("Please fill out the form to update your profile");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setUpdateUserError(data.message);
+        dispatch(updateFailure(data.message));
+      } else {
+        dispatch(updateSuccess(data));
+        setImageFileUploadProgress(null);
+        setUpdateUserSuccess("User Profile Updated Successfully!");
+        setUpdateUserError(null);
+      }
+    } catch (err) {
+      dispatch(updateFailure(err.message));
+      setUpdateUserError(err.message);
+    }
+  };
 
   useEffect(() => {
     const uploadImage = () => {
+      setImageFileUploading(true);
       setImageFileUploadError(null);
       const storage = getStorage(app);
       const fileName = new Date().getTime() + imageFile.name;
@@ -45,10 +97,13 @@ export default function DashProfile() {
           setImageFileUploadProgress(null);
           setImageFile(null);
           setImageFileUrl(null);
+          setImageFileUploading(false);
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             setImageFileUrl(downloadURL);
+            setFormData({ ...formData, profilePic: downloadURL });
+            setImageFileUploading(false);
           });
         }
       );
@@ -61,25 +116,30 @@ export default function DashProfile() {
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 font-semibold text-3xl text-center ">Profile</h1>
-      <form className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="file"
-          // id="profilePic"
+          id="profilePic"
           className="hidden"
           onChange={handleImageChange}
           accept="image/*"
           ref={filePickerRef}
         />
-        <div onClick={() => filePickerRef.current.click()} className="w-32 h-32 relative self-center cursor-pointer overflow-hidden shadow-[0_0_4px_3px_#eee] rounded-full">
+        <div
+          onClick={() => filePickerRef.current.click()}
+          className="w-32 h-32 relative self-center cursor-pointer overflow-hidden shadow-[0_0_4px_3px_#eee] rounded-full"
+        >
           {/* // object cover is used to make the image fit the container and maintain aspect ratio */}
           {/* <label htmlFor="profilePic"> */}
           <img
             src={imageFileUrl || currentUser?.profilePic}
             alt="profile"
             //instead of using useRef we can use label tag as commented above we have used useRef hook to just understand the concept
-            
+
             className={`w-full h-full object-cover border-2 border-[lightgray] opacity-${
-              imageFile && imageFileUploadProgress < 100 ? 50 : 100
+              imageFileUploadProgress && imageFileUploadProgress < 100
+                ? 50
+                : 100
             }`}
           />
           {/* </label> */}
@@ -110,16 +170,29 @@ export default function DashProfile() {
           type="text"
           id="username"
           placeholder="Username"
+          onChange={handleChange}
           defaultValue={currentUser?.username}
         />
         <TextInput
           type="text"
           id="email"
           placeholder="Email"
+          onChange={handleChange}
           defaultValue={currentUser?.email}
         />
-        <TextInput type="password" id="password" placeholder="Password" />
-        <Button type="submit" gradientDuoTone="purpleToBlue" outline pill>
+        <TextInput
+          type="password"
+          id="password"
+          placeholder="Password"
+          onChange={handleChange}
+        />
+        <Button
+          type="submit"
+          gradientDuoTone="purpleToBlue"
+          outline
+          pill
+          className={`${imageFileUploading ? "cursor-not-allowed" : ""}`}
+        >
           Update
         </Button>
       </form>
@@ -129,6 +202,8 @@ export default function DashProfile() {
         </div>
         <div className="text-sm p-2 text-gray-500 cursor-pointer">Sign out</div>
       </div>
+      {updateUserSuccess && <Alert color="success">{updateUserSuccess}</Alert>}
+      {updateUserError && <Alert color="failure">{updateUserError}</Alert>}
     </div>
   );
 }
