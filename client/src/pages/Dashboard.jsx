@@ -13,7 +13,7 @@ const Dashboard = () => {
     setTab(tabFromUrl);
   }, [location.search]);
   return (
-    <div className="flex flex-col min-h-screen sm:flex-row max-sm:items-center">
+    <div className="sm:flex w-full min-h-screen sm:flex-row max-sm:items-center">
       <div className="sm:w-56">
         {/* sidebar */}
         <DashSidebar active={tab} />

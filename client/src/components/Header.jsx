@@ -45,7 +45,7 @@ const Header = () => {
               className=""
               inline
               arrowIcon={false}
-              label={<Avatar alt="user" img={currentUser.profilePic} rounded />}
+              label={<Avatar alt="user" img={currentUser.profilePic} rounded className="overflow-hidden shadow-[0_0_4px_3px_#eee] rounded-full"/>}
             >
               <Dropdown.Header className="pb-0">
                 <p className="text-sm font-semibold ">
