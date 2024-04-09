@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Alert, Button, TextInput } from "flowbite-react";
+import { Alert, Button, Modal, TextInput } from "flowbite-react";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 import {
+  deleteFailure,
+  deleteStart,
+  deleteSuccess,
   updateFailure,
   updateStart,
   updateSuccess,
@@ -19,7 +23,8 @@ import { set } from "mongoose";
 
 export default function DashProfile() {
   const dispatch = useDispatch();
-  const { currentUser } = useSelector((state) => state.user);
+  const [showModal, setShowModal] = useState(false);
+  const { currentUser, error } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const filePickerRef = useRef();
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
@@ -113,6 +118,27 @@ export default function DashProfile() {
     }
   }, [imageFile]);
 
+  const handleDeleteUser = async () => {
+    setShowModal(false);
+    dispatch(deleteStart());
+    try{
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if(!res.ok){
+        dispatch(deleteFailure(data.message));
+      }
+      else {
+        dispatch(deleteSuccess());
+      }
+    }
+    catch(err){
+
+    }
+
+  };
+
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 font-semibold text-3xl text-center ">Profile</h1>
@@ -197,13 +223,51 @@ export default function DashProfile() {
         </Button>
       </form>
       <div className="flex justify-between">
-        <div className="text-sm p-2 text-red-500 cursor-pointer">
+        <div
+          onClick={() => setShowModal(true)}
+          className="text-sm p-2 text-red-500 cursor-pointer"
+        >
           Delete Account
         </div>
         <div className="text-sm p-2 text-gray-500 cursor-pointer">Sign out</div>
       </div>
       {updateUserSuccess && <Alert color="success">{updateUserSuccess}</Alert>}
       {updateUserError && <Alert color="failure">{updateUserError}</Alert>}
+      {error && <Alert color="failure">{error}</Alert>}
+      {showModal && (
+        <Modal
+          show={showModal}
+          popup
+          size={"md"}
+          onClose={() => setShowModal(false)}
+        >
+          <Modal.Header />
+          <Modal.Body>
+            <div className="p-5">
+              <h1 className="text-xl font-semibold text-center text-gray-600">
+                <HiOutlineExclamationCircle className="text-red-500 text-5xl mx-auto" />
+                Are you sure you want to permanently DELETE your account?
+              </h1>
+              <div className="flex justify-between gap-4 mt-5">
+                <Button
+                  gradientMonochrome="failure"
+                  pill
+                  onClick={handleDeleteUser}
+                >
+                  Yes, I'm sure
+                </Button>
+                <Button
+                  gradientDuoTone="purpleToBlue"
+                  pill
+                  onClick={() => setShowModal(false)}
+                >
+                  No, Cancel
+                </Button>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
+      )}
     </div>
   );
 }
