@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Alert, Button, Modal, TextInput } from "flowbite-react";
+import { Alert, Button, Modal, Spinner, TextInput } from "flowbite-react";
+import { Link } from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import {
   signOut,
@@ -20,12 +21,12 @@ import {
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { app } from "../firebase";
-import { set } from "mongoose";
 
 export default function DashProfile() {
   const dispatch = useDispatch();
+
   const [showModal, setShowModal] = useState(false);
-  const { currentUser, error } = useSelector((state) => state.user);
+  const { currentUser, error, loading } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const filePickerRef = useRef();
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
@@ -58,6 +59,9 @@ export default function DashProfile() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
+  useEffect(() => {
+    dispatch(updateSuccess(currentUser));
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUpdateUserSuccess(null);
@@ -66,11 +70,15 @@ export default function DashProfile() {
       setUpdateUserError(
         "Please wait for the image to upload before submitting the form"
       );
+      dispatch(updateFailure());
       return;
     }
     dispatch(updateStart());
     if (Object.keys(formData).length === 0) {
       setUpdateUserError("Please fill out the form to update your profile");
+      dispatch(
+        updateFailure("Please fill out the form to update your profile")
+      );
       return;
     }
 
@@ -147,7 +155,9 @@ export default function DashProfile() {
       } else {
         dispatch(deleteSuccess());
       }
-    } catch (err) {}
+    } catch (err) {
+      dispatch(deleteFailure(err.message));
+    }
   };
 
   return (
@@ -229,10 +239,32 @@ export default function DashProfile() {
           outline
           pill
           className={`${imageFileUploading ? "cursor-not-allowed" : ""}`}
+          disabled={loading || imageFileUploading}
         >
-          Update
+          {loading ? (
+            <>
+              <Spinner size="sm" />
+              <span className="pl-3 text-sm font-semibold">Loading...</span>
+            </>
+          ) : (
+            "Update"
+          )}
         </Button>
+        {currentUser?.isAdmin && (
+          <Link to="/create-post" className="w-full">
+            <Button
+              type="button"
+              gradientDuoTone="purpleToPink"
+              pill
+              className="w-full"
+              as="div"
+            >
+              Create a Post
+            </Button>
+          </Link>
+        )}
       </form>
+
       <div className="flex justify-between">
         <div
           onClick={() => setShowModal(true)}
@@ -249,7 +281,7 @@ export default function DashProfile() {
       </div>
       {updateUserSuccess && <Alert color="success">{updateUserSuccess}</Alert>}
       {updateUserError && <Alert color="failure">{updateUserError}</Alert>}
-      {error && <Alert color="failure">{error}</Alert>}
+      {!updateUserError && error && <Alert color="failure">{error}</Alert>}
       {showModal && (
         <Modal
           show={showModal}
