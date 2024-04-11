@@ -8,7 +8,7 @@ import {
   TextInput,
 } from "flowbite-react";
 import "react-quill/dist/quill.snow.css";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   getDownloadURL,
   getStorage,
@@ -17,9 +17,6 @@ import {
 } from "firebase/storage";
 import { app } from "../firebase";
 import ReactQuill from "react-quill";
-
-
-
 
 export default function CreatePost() {
   const [imageFileUploading, setImageFileUploading] = useState(false);
@@ -56,7 +53,7 @@ export default function CreatePost() {
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          console.log("uploading");
+          console.log(100*(snapshot.bytesTransferred/ snapshot.totalBytes));
         },
         (error) => {
           console.log("error", error.message);
@@ -89,7 +86,7 @@ export default function CreatePost() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -99,7 +96,6 @@ export default function CreatePost() {
         if (!data.success) {
           setPublishError(data.message);
         } else {
-
           setPublishError(null);
           navigate(`/post/${data.slug}`);
           console.log(data);
@@ -139,40 +135,40 @@ export default function CreatePost() {
             <option value="nextjs">Next.js</option>
           </Select>
         </div>
-        <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
-          {!imageFile || imageFileUploading ? (
-            <>
-              <FileInput
-                type="file"
-                onChange={(e) => setImageBuffer(e.target.files[0])}
-                id="file"
-                accept="image/*"
-              />
-              <Button
-                type="button"
-                gradientDuoTone="purpleToBlue"
-                size="sm"
-                onClick={handleUpload}
-                className="flex items-center"
-                disabled={imageFileUploading}
-                outline
-              >
-                {imageFileUploading && (
-                  <>
-                    <Spinner size="sm" />
-                  </>
-                )}
-                <span className="mx-2">Upload Image</span>
-              </Button>
-            </>
-          ) : (
-            <img
-              src={imageFileUrl}
-              alt="uploaded"
-              className="w-full h-[400px]"
+        <div className=" gap-4 items-center border-4 border-teal-500 border-dotted p-3">
+          <div className="flex justify-between">
+            <FileInput
+              type="file"
+              onChange={(e) => setImageBuffer(e.target.files[0])}
+              id="file"
+              accept="image/*"
             />
-          )}
-        </div>
+            <Button
+              type="button"
+              gradientDuoTone="purpleToBlue"
+              size="sm"
+              onClick={handleUpload}
+              className="flex items-center"
+              disabled={imageFileUploading}
+              outline
+            >
+              {imageFileUploading && (
+                <>
+                  <Spinner size="sm" />
+                </>
+              )}
+              <span className="mx-2">Upload Image</span>
+            </Button>
+          </div>
+          {imageFile &&
+            !imageFileUploading && (
+              <img
+                src={imageFileUrl}
+                alt="uploaded"
+                className="w-full h-[400px] mt-3"
+              />
+            )}</div>
+        
         {imageFileUploadError && (
           <Alert type="error" color="failure" className="text-center">
             {imageFileUploadError}
