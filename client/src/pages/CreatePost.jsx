@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Button, FileInput, Select, Spinner, TextInput } from "flowbite-react";
+import {
+  Alert,
+  Button,
+  FileInput,
+  Select,
+  Spinner,
+  TextInput,
+} from "flowbite-react";
 import "react-quill/dist/quill.snow.css";
+import {useNavigate} from "react-router-dom";
 import {
   getDownloadURL,
   getStorage,
@@ -8,7 +16,11 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
-import QuillEditor from "../components/QuillEditor";
+import ReactQuill from "react-quill";
+
+
+
+
 export default function CreatePost() {
   const [imageFileUploading, setImageFileUploading] = useState(false);
   const [formData, setFormData] = useState({});
@@ -16,6 +28,10 @@ export default function CreatePost() {
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const [imageFileUploadError, setImageFileUploadError] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [publishError, setPublishError] = useState(null);
+
+  const navigate = useNavigate();
+  // console.log(formData);
 
   const handleUpload = (e) => {
     if (!imageBuffer) return;
@@ -26,7 +42,7 @@ export default function CreatePost() {
     const uploadImage = () => {
       setImageFileUploading(true);
       setImageFileUploadError(null);
-      if (imageFile.type.split('/')[0]!=="image") {
+      if (imageFile.type.split("/")[0] !== "image") {
         setImageFileUploadError("Please upload an image file");
         setImageFile(null);
         setImageFileUrl(null);
@@ -40,13 +56,11 @@ export default function CreatePost() {
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          console.log(
-            "uploading"
-          );
+          console.log("uploading");
         },
         (error) => {
           console.log("error", error.message);
-          setImageFileUploadError('Upload failed, please try again later');
+          setImageFileUploadError("Upload failed, please try again later");
 
           setImageFile(null);
           setImageFileUrl(null);
@@ -57,7 +71,7 @@ export default function CreatePost() {
             setImageFileUrl(downloadURL);
             setImageFileUploading(false);
             setImageFileUploadError(null);
-            setFormData({...formData, image: downloadURL})
+            setFormData({ ...formData, image: downloadURL });
           });
         }
       );
@@ -67,22 +81,58 @@ export default function CreatePost() {
     }
   }, [imageFile]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("api/post/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPublishError(data.message);
+        return;
+      } else {
+        if (!data.success) {
+          setPublishError(data.message);
+        } else {
+
+          setPublishError(null);
+          navigate(`/post/${data.slug}`);
+          console.log(data);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <div className="p-3 max-w-3xl mx-auto space-y-2 min-h-screen">
       <div className="text-center text-3xl mb-7 font-semibold">
         Create a Post
       </div>
-      <form className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-4 sm:flex-row justify-between">
           <TextInput
             type="text"
             placeholder="Title"
             required
             id="title"
+            onChange={(e) => {
+              setFormData({ ...formData, title: e.target.value });
+            }}
             className="flex-1"
           />
 
-          <Select>
+          <Select
+            onChange={(e) => {
+              setFormData({ ...formData, category: e.target.value });
+            }}
+          >
             <option value="uncategorized">Select a category</option>
             <option value="javascript">Javascript</option>
             <option value="reactjs">React.js</option>
@@ -90,7 +140,7 @@ export default function CreatePost() {
           </Select>
         </div>
         <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
-          {!imageFile || imageFileUploading  ? (
+          {!imageFile || imageFileUploading ? (
             <>
               <FileInput
                 type="file"
@@ -107,9 +157,11 @@ export default function CreatePost() {
                 disabled={imageFileUploading}
                 outline
               >
-                {imageFileUploading && <>
-                  <Spinner size="sm" />
-                </>}
+                {imageFileUploading && (
+                  <>
+                    <Spinner size="sm" />
+                  </>
+                )}
                 <span className="mx-2">Upload Image</span>
               </Button>
             </>
@@ -127,9 +179,16 @@ export default function CreatePost() {
           </Alert>
         )}
         {/* below uses some javascript depricated functions so alternatively we have used Quill dependency but snow theme is taken from react-quill so both dependency should be installed */}
-        {/* <ReactQuill theme="snow" placeholder="Write something..." className="h-72 mb-12"/> */}
+        <ReactQuill
+          theme="snow"
+          required
+          onChange={(value) => {
+            setFormData({ ...formData, content: value });
+          }}
+          placeholder="Write something..."
+          className="h-72 mb-12"
+        />
 
-        <QuillEditor required />
         <Button
           type="submit"
           gradientDuoTone="purpleToPink"
@@ -138,6 +197,11 @@ export default function CreatePost() {
         >
           Publish
         </Button>
+        {publishError && (
+          <Alert type="error" color="failure" className="text-center">
+            {publishError}
+          </Alert>
+        )}
       </form>
     </div>
   );
