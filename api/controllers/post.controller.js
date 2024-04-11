@@ -73,7 +73,7 @@ export const getPosts = async (req, res, next) => {
 
 export const deletePost = async (req, res, next) => {
   try {
-    if (!req.user.isAdmin) {
+    if (!req.user.isAdmin || req.params.userId !== req.user.id) {
       return next(errorHandler(403, "Access Denied"));
     }
     await Post.findByIdAndDelete(req.params.postId);
