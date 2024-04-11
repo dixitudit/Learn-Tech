@@ -65,7 +65,19 @@ export const getPosts = async (req, res, next) => {
       createdAt: { $gte: oneMonthAgo },
     });
 
-    res.status(200).json({posts, totalPosts, lastMonthPosts});
+    res.status(200).json({ posts, totalPosts, lastMonthPosts });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const deletePost = async (req, res, next) => {
+  try {
+    if (!req.user.isAdmin) {
+      return next(errorHandler(403, "Access Denied"));
+    }
+    await Post.findByIdAndDelete(req.params.postId);
+    res.status(200).json({ message: "post deleted successfully" });
   } catch (err) {
     return next(err);
   }
