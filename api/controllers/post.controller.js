@@ -30,7 +30,7 @@ export const createPost = async (req, res, next) => {
 
 export const getPosts = async (req, res, next) => {
   try {
-    console.log(req.query);
+    // console.log(req.query);
     // here query is something which is written after ? in the url separated by & for this route for example someone call get request for ip/api/posts/getposts?startIndex=0&limit=10&order=asc&category=uncategorized then req.query will be {startIndex: 0, limit: 10, order: 'asc', category: 'uncategorized'}
 
     const startIndex = parseInt(req.query.startIndex) || 0;
