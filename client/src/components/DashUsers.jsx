@@ -144,6 +144,7 @@ export default function DashPosts() {
                             setShowModal(true);
                             setDelIndex(index);
                             setToDelete(user._id);
+                            
                           }}
                           className="text-red-500 hover:underline cursor-pointer"
                         >
@@ -185,6 +186,7 @@ export default function DashPosts() {
                             gradientMonochrome="failure"
                             pill
                             onClick={handleDeleteUser}
+                            disabled={users[delIndex].isAdmin}
                           >
                             Yes, I'm sure
                           </Button>
