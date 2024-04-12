@@ -2,7 +2,7 @@ import Post from "../models/post.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export const createPost = async (req, res, next) => {
-  console.log(req.user);
+  // console.log(req.user);
   if (!req.user.isAdmin) {
     return next(errorHandler(403, "Access Denied"));
   }
@@ -78,6 +78,29 @@ export const deletePost = async (req, res, next) => {
     }
     await Post.findByIdAndDelete(req.params.postId);
     res.status(200).json({ message: "post deleted successfully" });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const updatePost = async (req, res, next) => {
+  try {
+    if (!req.user.isAdmin || req.params.userId !== req.user.id) {
+      return next(errorHandler(403, "Access Denied"));
+    }
+    const updated = await Post.findByIdAndUpdate(
+      req.params.postId,
+      {
+        $set: {
+          title: req.body.title,
+          image: req.body.image,
+          content: req.body.content,
+          category: req.body.category,
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json(updated);
   } catch (err) {
     return next(err);
   }
