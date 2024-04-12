@@ -1,4 +1,4 @@
-import { Link , useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import OAuth from "../components/OAuth";
@@ -26,10 +26,9 @@ const SignUp = () => {
       const data = await res.json();
       if (!data.success) {
         setErrorMsg(data.message);
-      }
-      else{
-        console.log('go/sign-in')
-        navigate('/sign-in')
+      } else {
+        console.log("go/sign-in");
+        navigate("/sign-in");
       }
     } catch (err) {
       setErrorMsg(err.message);

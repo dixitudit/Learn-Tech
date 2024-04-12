@@ -6,8 +6,6 @@ export const test = (req, res) => {
   res.json({ message: "api works" });
 };
 
-
-
 //update user
 export const updateUser = async (req, res, next) => {
   if (req.user.id !== req.params.userId) {
@@ -63,36 +61,81 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
-
-
-
-
-
 // delete user
 export const deleteUser = async (req, res, next) => {
-  try{
-    if (req.user.id !== req.params.userId) {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (user.isAdmin || req.user.id !== req.params.userId) {
       return next(errorHandler(403, "Access Denied"));
     }
     await User.findByIdAndDelete(req.params.userId);
-    return res.status(200).json({message: "User deleted successfully"});
-  }
-  catch(err){
+    return res.status(200).json({ message: "User deleted successfully" });
+  } catch (err) {
     next(err);
   }
-
-}
-
-
-
+};
 
 // sign out user
-export const signout = (req, res,next) => {
-  try{
-  res.clearCookie("access_token");
-  res.status(200).json({ message: "Signout successful" });
-  }
-  catch (err){
+export const signout = (req, res, next) => {
+  try {
+    res.clearCookie("access_token");
+    res.status(200).json({ message: "Signout successful" });
+  } catch (err) {
     return next(err);
+  }
+};
+
+// get users
+export const getUsers = async (req, res, next) => {
+  if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+    return next(errorHandler(403, "Access Denied"));
+  }
+  const startIndex = parseInt(req.query.startIndex) || 0;
+  const limit = parseInt(req.query.limit) || 9;
+  const sortDirection = req.query.order === "asc" ? 1 : -1;
+  try {
+    const users = await User.find()
+      .sort({ createdAt: sortDirection })
+      .skip(startIndex)
+      .limit(limit);
+
+    const usersWithoutPassword = users.map((user) => {
+      const { password, ...rest } = user._doc;
+      return rest;
+    });
+
+    const totalUsers = await User.countDocuments();
+
+    const now = new Date();
+
+    const oneMonthAgo = new Date(now.setMonth(now.getMonth() - 1));
+
+    const lastMonthUsers = await User.countDocuments({
+      createdAt: { $gte: oneMonthAgo },
+    });
+
+    res
+      .status(200)
+      .json({ users: usersWithoutPassword, totalUsers, lastMonthUsers });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// delete user by admin
+export const deleteUserByAdmin = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.delUserId);
+    if (
+      user.isAdmin ||
+      !req.user.isAdmin ||
+      req.user.id !== req.params.userId
+    ) {
+      return next(errorHandler(403, "Access Denied"));
+    }
+    await User.findByIdAndDelete(req.params.delUserId);
+    return res.status(200).json({ message: "User deleted successfully" });
+  } catch (err) {
+    next(err);
   }
 };
