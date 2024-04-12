@@ -28,3 +28,49 @@
   .ql-editor {
     font-size: 1.05rem;
   }
+
+  .post-content p {
+    margin-bottom: 0.5rem ;
+  }
+
+  .post-content h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin: 1rem 0;
+    font-family: sans-serif;
+  }
+
+  .post-content h2 {
+    font-size: 2.0rem;
+    margin: 1rem 0;
+    font-weight: 400;
+    font-family: sans-serif;
+  }
+
+  .post-content h3 {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin: 1rem 0;
+    font-family: sans-serif;
+  }
+
+  .post-content a {
+    color: rgb(73,149,199);
+    text-decoration: none;
+  }
+
+  .post-content a:hover {
+    text-decoration: underline;
+  }
+
+  .post-content ul {
+    margin-top: 15px;
+    list-style-type: disc;
+    margin-left: 1rem;
+  }
+
+  .post-content ol {
+    margin-top: 15px;
+    list-style-type: decimal;
+    margin-left: 1rem;
+  }
