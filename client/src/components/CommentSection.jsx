@@ -1,13 +1,44 @@
-import { Button, Textarea } from "flowbite-react";
+import { Alert, Button, Textarea } from "flowbite-react";
+import { set } from "mongoose";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-//8:35
 
 export default function CommentSection({ postId }) {
   const [comment, setComment] = useState("");
+  const [commentError, setCommentError] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
-  const handleSubmit = async (e) => {};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (comment.length > 200 || currentUser === null || (!comment && !comment.trim())) {
+      setCommentError(true);
+      return;
+    }
+    try {
+      const res = await fetch("/api/comment/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          content: comment,
+          postId,
+          userId: currentUser._id,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCommentError(false);
+        setComment("");
+        console.log(data);
+      }
+    } catch (err) {
+      setCommentError(true);
+      console.error(err);
+    }
+  };
+
   return (
     <div>
       {currentUser ? (
@@ -35,6 +66,7 @@ export default function CommentSection({ postId }) {
                 placeholder="Write a comment..."
                 rows="3"
                 maxLength="200"
+                value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />
               <div className="flex items-center justify-between p-3">
@@ -50,6 +82,11 @@ export default function CommentSection({ postId }) {
                   Add comment
                 </Button>
               </div>
+              {commentError && (
+                <Alert color="failure">
+                  Something went wrong, try again later.
+                </Alert>
+              )}
             </form>
           </div>
         </>
