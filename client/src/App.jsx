@@ -12,9 +12,13 @@ import OnlyAdminPrivateRoute from "./components/OnlyAdminPrivateRoute";
 import CreatePost from "./pages/CreatePost";
 import UpdatePost from "./pages/UpdatePost";
 import PostPage from "./pages/PostPage";
+import ScrollToTop from "./components/ScrollToTop";
+import IsCookiePresent from "./components/IsCookiePresent";
 function App() {
   return (
     <>
+    <ScrollToTop />
+    <IsCookiePresent />
       <Header />
       <Routes>
         <Route path="/" element={<Home />}></Route>

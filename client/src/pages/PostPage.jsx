@@ -1,12 +1,11 @@
 import { Button, Spinner } from "flowbite-react";
-import { set } from "mongoose";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import CommentSection from "../components/CommentSection";
 
 export default function PostPage() {
   const { postSlug } = useParams();
   const [loading, setLoading] = useState(true);
-  const [postContent, setPostContent] = useState(null);
   const [error, setError] = useState(false);
   const [post, setPost] = useState(null);
 
@@ -22,8 +21,7 @@ export default function PostPage() {
           setLoading(false);
         } else {
           setPost(data.posts[0]);
-          setPostContent(data.posts[0].content);
-        //   console.log(data.posts);
+          //   console.log(data.posts);
           setLoading(false);
         }
       } catch (err) {
@@ -36,7 +34,7 @@ export default function PostPage() {
   }, [postSlug]);
   return (
     <>
-      {loading ? (
+      {loading || error ? (
         <>
           <div className="flex justify-center min-h-screen items-center mx-auto h-96">
             <Spinner size="lg" />
@@ -48,17 +46,30 @@ export default function PostPage() {
           <h1 className="text-3xl max-w-2xl mx-auto font-bold font-serif mt-10 p-3 text-center lg:text-4xl">
             {post && post.title}
           </h1>
-          <Link className="mx-auto m-5" to={`/search?category=${post && post.category}`}>
-            <Button color='gray' pill size='xs'>{post && post.category}</Button>
+          <Link
+            className="mx-auto m-5"
+            to={`/search?category=${post && post.category}`}
+          >
+            <Button color="gray" pill size="xs">
+              {post && post.category}
+            </Button>
           </Link>
-          <img src={post && post.image} alt={post && post.title} className="mx-auto mt-10 p-3 max-h-[500px] w-full object-cover" />
+          <img
+            src={post && post.image}
+            alt={post && post.title}
+            className="mx-auto mt-10 p-3 max-h-[500px] w-full object-cover"
+          />
           <div className="flex text-xs justify-between py-3 px-4">
             <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
-            <span className="mx-2">{post && (post.content.length/1000).toFixed(0)} mins read</span>
+            <span className="mx-2">
+              {post && (post.content.length / 1000).toFixed(0)} mins read
+            </span>
           </div>
-          <div className="p-3 max-w-2xl mx-auto w-full post-content" dangerouslySetInnerHTML={{__html: post && post.content}}>
-
-          </div>
+          <div
+            className="p-3 max-w-2xl mx-auto w-full post-content"
+            dangerouslySetInnerHTML={{ __html: post && post.content }}
+          ></div>
+          <CommentSection postId={post._id}/>
         </main>
       )}
     </>

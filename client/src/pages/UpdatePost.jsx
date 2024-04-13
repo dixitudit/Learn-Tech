@@ -120,7 +120,6 @@ export default function UpdatePost() {
       } else {
         setPublishError(null);
         navigate(`/post/${data.slug}`);
-        console.log(data);
       }
     } catch (err) {
       console.log(err);

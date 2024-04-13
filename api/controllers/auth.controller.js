@@ -58,6 +58,7 @@ export const signin = async (req, res, next) => {
     res
       .status(200)
       .cookie("access_token", token, { httpOnly: true })
+      .cookie("isTokenPresent", true, { httpOnly: false })
       .json({ user: rest, success: true });
   } catch (err) {
     next(err);
@@ -81,6 +82,7 @@ export const google = async (req, res, next) => {
       return res
         .status(200)
         .cookie("access_token", token, { httpOnly: true })
+        .cookie("isTokenPresent", true, { httpOnly: false })
         .json(rest);
     } else {
       // if the user doesn't exist, create a new user with random password and random username
