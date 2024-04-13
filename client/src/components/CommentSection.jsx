@@ -1,16 +1,36 @@
 import { Alert, Button, Textarea } from "flowbite-react";
-import { set } from "mongoose";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import CommentCard from "./CommentCard";
 
 export default function CommentSection({ postId }) {
   const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
   const [commentError, setCommentError] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await fetch(`/api/comment/getPostComments/${postId}`);
+        const data = await res.json();
+        if (res.ok) {
+          setComments(data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchComments();
+  }, [postId]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (comment.length > 200 || currentUser === null || (!comment && !comment.trim())) {
+    if (
+      comment.length > 200 ||
+      currentUser === null ||
+      (!comment && !comment.trim())
+    ) {
       setCommentError(true);
       return;
     }
@@ -31,7 +51,8 @@ export default function CommentSection({ postId }) {
       if (res.ok) {
         setCommentError(false);
         setComment("");
-        console.log(data);
+        setComments((prev) => [data, ...prev]);
+        // console.log(data);
       }
     } catch (err) {
       setCommentError(true);
@@ -102,6 +123,19 @@ export default function CommentSection({ postId }) {
           .
         </div>
       )}
+      <div className="p-3 border-b-2">
+        <p>
+          Comments{" "}
+          <span className="border-2 shadow-md px-2">
+            {comments.length || 0}
+          </span>
+        </p>
+      </div>
+      <div>
+        {comments.map((comment) => (
+          <CommentCard key={comment._id} comment={comment}/>
+        ))}
+      </div>
     </div>
   );
 }
