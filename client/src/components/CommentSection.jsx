@@ -54,6 +54,13 @@ export default function CommentSection({ postId }) {
     }
   }
 
+  const handleEdit = async (comment, editedContent) => {
+    setComments(comments.map((c)=> c._id === comment._id ? {...c, content: editedContent}: c))
+  };
+
+
+  const handleDelete = async (commentId) => {};
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -163,7 +170,7 @@ export default function CommentSection({ postId }) {
       </div>
       <div>
         {!loading && comments.map((comment) => (
-          <CommentCard key={comment._id} comment={comment} onLike={handleLike}/>
+          <CommentCard key={comment._id} onDelete={handleDelete} comment={comment} onEdit={handleEdit} onLike={handleLike}/>
           
         ))}
       </div>
