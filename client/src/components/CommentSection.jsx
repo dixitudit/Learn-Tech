@@ -18,7 +18,7 @@ export default function CommentSection({ postId }) {
         setLoading(true);
         const res = await fetch(`/api/comment/getPostComments/${postId}`);
         const data = await res.json();
-        console.log(data);
+        // console.log(data);
         if (res.ok) {
           setComments(data);
           setLoading(false);
@@ -59,7 +59,18 @@ export default function CommentSection({ postId }) {
   };
 
 
-  const handleDelete = async (commentId) => {};
+  const handleDelete = async (commentId) => {
+    try {
+      const res = await fetch(`/api/comment/deleteComment/${commentId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setComments(comments.filter((comment) => comment._id !== commentId));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

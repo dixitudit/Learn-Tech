@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import moment from "moment";
 import { FaThumbsUp } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { Button, Textarea } from "flowbite-react";
+import { Button, Modal, Textarea } from "flowbite-react";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 export default function CommentCard({ comment, onEdit, onLike, onDelete }) {
   const [user, setUser] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [toDelete, setToDelete] = useState(null);
   const { currentUser } = useSelector((state) => state.user);
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(comment.content);
@@ -14,6 +17,7 @@ export default function CommentCard({ comment, onEdit, onLike, onDelete }) {
     setIsEditing(true);
     setEditedContent(comment.content);
   };
+
 
   const handleSave = async () => {
     try {
@@ -26,7 +30,7 @@ export default function CommentCard({ comment, onEdit, onLike, onDelete }) {
       });
       const data = await res.json();
       // console.log(data);
-      if(res.ok){
+      if (res.ok) {
         setIsEditing(false);
         onEdit(comment, data.content);
       }
@@ -128,7 +132,7 @@ export default function CommentCard({ comment, onEdit, onLike, onDelete }) {
                   <>
                     <button
                       onClick={() => handleEdit(comment._id)}
-                      className="text-gray-400 px-2 hover:text-blue-500"
+                      className="text-gray-400 pl-2 hover:text-blue-500"
                     >
                       Edit
                     </button>
@@ -139,8 +143,11 @@ export default function CommentCard({ comment, onEdit, onLike, onDelete }) {
                     currentUser.isAdmin) && (
                     <>
                       <button
-                        className="text-red-400  hover:underline"
-                        onClick={() => onDelete(comment._id)}
+                        className="text-red-400  hover:underline pl-2"
+                        onClick={() => {
+                          setToDelete(comment._id);
+                          setShowModal(true);
+                        }}
                       >
                         Delete
                       </button>
@@ -151,6 +158,40 @@ export default function CommentCard({ comment, onEdit, onLike, onDelete }) {
           )}
         </div>
       </div>
+      {showModal && (
+        <Modal
+          show={showModal}
+          popup
+          size={"md"}
+          onClose={() => setShowModal(false)}
+        >
+          <Modal.Header />
+          <Modal.Body>
+            <div className="p-5">
+              <h1 className="text-xl font-semibold text-center text-gray-600">
+                <HiOutlineExclamationCircle className="text-red-500 text-5xl mx-auto" />
+                Are you sure you want to permanently DELETE this comment?
+              </h1>
+              <div className="flex justify-between gap-4 mt-5">
+                <Button
+                  gradientMonochrome="failure"
+                  pill
+                  onClick={()=>onDelete(toDelete)}
+                >
+                  Yes, I'm sure
+                </Button>
+                <Button
+                  gradientDuoTone="purpleToBlue"
+                  pill
+                  onClick={() => setShowModal(false)}
+                >
+                  No, Cancel
+                </Button>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
+      )}
     </div>
   );
 }
