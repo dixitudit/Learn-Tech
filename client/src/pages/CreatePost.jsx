@@ -98,7 +98,6 @@ export default function CreatePost() {
         } else {
           setPublishError(null);
           navigate(`/post/${data.slug}`);
-          console.log(data);
         }
       }
     } catch (err) {

@@ -23,7 +23,7 @@ export default function PostPage() {
           setRLoading(false);
         } else {
           setRecentPosts(data.posts);
-          console.log(recentPosts);
+          // console.log(recentPosts);
           setRLoading(false);
         }
       } catch (err) {

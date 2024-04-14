@@ -1,6 +1,14 @@
 import React from "react";
 import { Sidebar } from "flowbite-react";
-import { HiAnnotation, HiArrowSmRight, HiDocumentText, HiMail, HiUser, HiUserGroup } from "react-icons/hi";
+import {
+  HiAnnotation,
+  HiArrowSmRight,
+  HiChartPie,
+  HiDocumentText,
+  HiMail,
+  HiUser,
+  HiUserGroup,
+} from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { signOut } from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,18 +35,33 @@ export default function DashSidebar({ active }) {
     <Sidebar className="w-full sm:w-56">
       <Sidebar.Items>
         <Sidebar.ItemGroup className="flex flex-col gap-1">
+          {currentUser.isAdmin && (
+            <>
+              <Link to="/dashboard?tab=dash">
+                <Sidebar.Item
+                  active={active === "dash" || !active}
+                  className="cursor-pointer"
+                  icon={HiChartPie}
+                  as="div"
+                >
+                  Dashboard
+                </Sidebar.Item>
+              </Link>
+            </>
+          )}
           <Link to="/dashboard?tab=profile">
             <Sidebar.Item
               active={active === "profile"}
               className="cursor-pointer"
               icon={HiUser}
-              label={currentUser.isAdmin?"Admin":"User"}
+              label={currentUser.isAdmin ? "Admin" : "User"}
               labelColor="dark"
               as="div"
             >
               Profile
             </Sidebar.Item>
           </Link>
+
           {currentUser.isAdmin && (
             <>
               <Link to="/dashboard?tab=posts">
@@ -81,6 +104,7 @@ export default function DashSidebar({ active }) {
               </Link>
             </>
           )}
+
           <Sidebar.Item
             active={active === "signout"}
             icon={HiArrowSmRight}

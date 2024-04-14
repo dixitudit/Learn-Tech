@@ -22,7 +22,7 @@ export const createPost = async (req, res, next) => {
   });
   try {
     const savedPost = await newPost.save();
-    res.status(201).json(savedPost);
+    res.status(201).json({success:true, slug: savedPost.slug, message: "Post created successfully"});
   } catch (err) {
     return next(err);
   }
