@@ -3,7 +3,7 @@ const About = () => {
     <div>
       <div className="max-w-2xl mt-[-30px] mx-auto p-3 text-center">
         <div className="min-h-screen flex flex-col items-center justify-center">
-          <h1 className="text-3xl font-semibold text-center my-7">About Us</h1>
+          <h1 className="text-3xl font-semibold text-center my-7">About</h1>
           <div className="text-md text-gray-500 flex flex-col gap-6">
             <p className="text-black">Welcome to LearnTech: Your Gateway to Tech Mastery</p>
             <p>
