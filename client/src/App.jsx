@@ -4,7 +4,6 @@ import About from "./pages/About";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
-import Projects from "./pages/Projects";
 import Header from "./components/Header";
 import FooterComponent from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute";
@@ -15,6 +14,7 @@ import PostPage from "./pages/PostPage";
 import ScrollToTop from "./components/ScrollToTop";
 import IsCookiePresent from "./components/IsCookiePresent";
 import Search from "./pages/Search";
+import NotFound from "./pages/NotFound";
 function App() {
   return (
     <>
@@ -33,9 +33,9 @@ function App() {
           <Route path="/create-post" element={<CreatePost />}></Route>
           <Route path="/update-post/:postId" element={<UpdatePost />}></Route>
         </Route>
-        <Route path="/projects" element={<Projects />}></Route>
         <Route path="/post/:postSlug" element={<PostPage/>}></Route>
         <Route path="/sign-in" element={<SignIn />}></Route>
+        <Route path="*" element={<NotFound />}></Route>
       </Routes>
       <FooterComponent />
     </>

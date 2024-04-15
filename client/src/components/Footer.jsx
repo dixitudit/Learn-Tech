@@ -21,7 +21,7 @@ const FooterComponent = () => {
                 <Footer.Title title="Quick Links" />
                 <Footer.LinkGroup col>
                   <Footer.Link href="/about">About</Footer.Link>
-                  <Footer.Link href="/projects">Projects</Footer.Link>
+                  <Footer.Link href="https://github.com/dixitudit?tab=repositories">Projects</Footer.Link>
                 </Footer.LinkGroup>
               </div>
               <div className="mt-5">

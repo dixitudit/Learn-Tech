@@ -128,7 +128,7 @@ const Header = () => {
             About
           </Navbar.Link>
         </Link>
-        <Link to={"/projects"}>
+        <Link to='https://github.com/dixitudit?tab=repositories'>
           <Navbar.Link active={path === "/projects"} as={"div"}>
             Projects
           </Navbar.Link>
