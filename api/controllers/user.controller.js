@@ -79,6 +79,7 @@ export const deleteUser = async (req, res, next) => {
 export const signout = (req, res, next) => {
   try {
     res.clearCookie("access_token");
+    res.cookie("isTokenPresent", false);
     res.status(200).json({ message: "Signout successful" });
   } catch (err) {
     return next(err);
@@ -92,7 +93,7 @@ export const getUsers = async (req, res, next) => {
   }
   const startIndex = parseInt(req.query.startIndex) || 0;
   const limit = parseInt(req.query.limit) || 9;
-  const sortDirection = req.query.order === "asc" ? 1 : -1;
+  const sortDirection = (req.query.order === "asc") ? 1 : -1;
   try {
     const users = await User.find()
       .sort({ createdAt: sortDirection })
